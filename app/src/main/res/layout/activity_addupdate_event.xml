@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/root_addUpdate"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <include
+        android:id="@+id/toolbar_main"
+        layout="@layout/toolbar_main"/>
+
+    <RelativeLayout
+        android:layout_below="@+id/toolbar_main"
+        android:gravity="center_vertical"
+        android:padding="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <RelativeLayout
+            android:layout_marginBottom="10dp"
+            android:id="@+id/container_image"
+            android:layout_width="match_parent"
+            android:layout_height="200dp">
+            <androidx.appcompat.widget.AppCompatImageView
+                android:layout_centerInParent="true"
+                android:id="@+id/image_event"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:maxHeight="100dp"
+                android:minHeight="100dp"
+               />
+
+        </RelativeLayout>
+        <com.google.android.material.button.MaterialButton
+            android:layout_marginBottom="10dp"
+            android:layout_below="@id/container_image"
+            android:layout_centerHorizontal="true"
+            android:id="@+id/button_image"
+            app:cornerRadius="10dp"
+            android:text="Select Image"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_below="@+id/button_image"
+            android:id="@+id/editText_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:errorEnabled="true">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:hint="Event Title"
+                android:backgroundTint="@color/white"
+                android:inputType="text"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/editText_date"
+            android:layout_below="@+id/editText_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:focusableInTouchMode="false"
+            app:errorEnabled="true">
+            <com.google.android.material.textfield.TextInputEditText
+                android:clickable="true"
+               android:focusableInTouchMode="false"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:backgroundTint="@color/white"
+                android:hint="Event Date"
+                />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/editText_desc"
+            android:layout_below="@+id/editText_date"
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            app:errorEnabled="true">
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:backgroundTint="@color/white"
+                android:hint="Event Description"
+                android:inputType="textMultiLine"
+                />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/button_submit"
+            android:layout_below="@+id/editText_desc"
+            android:layout_centerHorizontal="true"
+            app:cornerRadius="10dp"
+            style="@style/Widget.MaterialComponents.Button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Submit"/>
+    </RelativeLayout>
+
+
+</RelativeLayout>
