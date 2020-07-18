@@ -15,7 +15,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 
 import com.example.evento.R
 import com.example.evento.data.model.Events
-import com.example.evento.data.FirebaseViewModel
+import com.example.evento.data.viewmodel.EventViewModel
+import com.example.evento.data.viewmodel.FirebaseViewModel
 import com.example.evento.main.adapter.EventAdapter
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.fragment_third_tab.*

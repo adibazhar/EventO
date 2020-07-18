@@ -7,9 +7,9 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.lifecycle.Observer
-import com.example.evento.data.UserViewModel
+import com.example.evento.data.viewmodel.UserViewModel
 import com.example.evento.login.ActivityLogin
-import com.example.evento.data.FirebaseViewModel
+import com.example.evento.data.viewmodel.FirebaseViewModel
 import com.example.evento.main.adapter.ViewPagerAdapter
 import com.google.android.gms.common.GoogleApiAvailability
 import kotlinx.android.synthetic.main.activity_main.*

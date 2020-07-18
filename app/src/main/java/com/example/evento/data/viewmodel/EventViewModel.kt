@@ -1,4 +1,4 @@
-package com.example.evento.main
+package com.example.evento.data.viewmodel
 
 import android.app.Application
 import android.util.Log

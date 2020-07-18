@@ -1,4 +1,4 @@
-package com.example.evento.data
+package com.example.evento.data.viewmodel
 
 import android.net.Uri
 import android.util.Log
