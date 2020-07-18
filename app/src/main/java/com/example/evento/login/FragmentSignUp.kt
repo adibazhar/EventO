@@ -11,7 +11,7 @@ import android.widget.Toast
 import androidx.lifecycle.Observer
 
 import com.example.evento.R
-import com.example.evento.data.FirebaseViewModel
+import com.example.evento.data.viewmodel.FirebaseViewModel
 import com.example.evento.data.model.UserInfo
 import com.example.evento.util.isEmailValid
 import com.example.evento.util.isPasswordValid

@@ -3,7 +3,6 @@ package com.example.evento.login
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -13,17 +12,14 @@ import androidx.lifecycle.Observer
 import com.example.evento.MainActivity
 
 import com.example.evento.R
-import com.example.evento.data.FirebaseViewModel
-import com.example.evento.data.UserViewModel
+import com.example.evento.data.viewmodel.FirebaseViewModel
+import com.example.evento.data.viewmodel.UserViewModel
 import com.example.evento.data.model.UserInfo
 import com.example.evento.util.onEditTextClicked
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.android.synthetic.main.fragment_login.*
 import kotlinx.android.synthetic.main.fragment_login.text_input_email
 import kotlinx.android.synthetic.main.fragment_login.text_input_password
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 import org.koin.android.viewmodel.ext.android.viewModel
 
