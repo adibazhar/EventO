@@ -50,20 +50,20 @@ class FirebaseRepo(
         return result
     }
 
-    suspend fun signupUserWithEmailandPassword2(
-        email: String,
-        password: String
-    ) = suspendCancellableCoroutine<FirebaseResult> { continuation ->
-        auth.createUserWithEmailAndPassword(email, password)
-            .addOnSuccessListener {
-                continuation.resume(FirebaseResult.Success(it))
-                //signOut()
-            }
-            .addOnFailureListener {
-                Log.d(TAG, it.message.toString())
-                continuation.resume(FirebaseResult.Failure(it.message!!))
-            }
-    }
+//    suspend fun signupUserWithEmailandPassword2(
+//        email: String,
+//        password: String
+//    ) = suspendCancellableCoroutine<FirebaseResult> { continuation ->
+//        auth.createUserWithEmailAndPassword(email, password)
+//            .addOnSuccessListener {
+//                continuation.resume(FirebaseResult.Success(it))
+//                //signOut()
+//            }
+//            .addOnFailureListener {
+//                Log.d(TAG, it.message.toString())
+//                continuation.resume(FirebaseResult.Failure(it.message!!))
+//            }
+//    }
 
     fun signinWithEmailandPassword(
         email: String,
@@ -82,15 +82,15 @@ class FirebaseRepo(
         return result
     }
 
-    suspend fun signinWithEmailandPassword2(email: String, password: String) =
-        suspendCancellableCoroutine<FirebaseResult> { continuation ->
-            auth.signInWithEmailAndPassword(email, password).addOnSuccessListener {
-                continuation.resume(FirebaseResult.Success(it))
-            }
-                .addOnFailureListener {
-                    continuation.resume(FirebaseResult.Failure(it.message!!))
-                }
-        }
+//    suspend fun signinWithEmailandPassword2(email: String, password: String) =
+//        suspendCancellableCoroutine<FirebaseResult> { continuation ->
+//            auth.signInWithEmailAndPassword(email, password).addOnSuccessListener {
+//                continuation.resume(FirebaseResult.Success(it))
+//            }
+//                .addOnFailureListener {
+//                    continuation.resume(FirebaseResult.Failure(it.message!!))
+//                }
+//        }
 
     fun signOut() {
         if (auth.currentUser == null) return
@@ -104,27 +104,43 @@ class FirebaseRepo(
         //reference.setValue(userInfo)
     }
 
-    suspend fun readUserInfoFromFirebase() =
-        suspendCancellableCoroutine<FirebaseResult> { continuation ->
-            val uid = auth.uid
-            // val reference = FirebaseDatabase.getInstance().getReference("/users/$uid")
+    suspend fun readUserInfoFromFirebase(): LiveData<FirebaseResult> {
+        val uid = auth.uid
+        val liveData = MutableLiveData<FirebaseResult>()
+        firebaseDatabaseReference.child("/users/$uid")
+            .addValueEventListener(object : ValueEventListener {
+                override fun onCancelled(p0: DatabaseError) {
+                    liveData.value = FirebaseResult.Failure(p0.message)
+                }
 
-            firebaseDatabaseReference.child("/users/$uid")
-                .addValueEventListener(object : ValueEventListener {
-                    override fun onCancelled(p0: DatabaseError) {
-                        if (!continuation.isActive) {
-                            continuation.resume(FirebaseResult.Failure(p0.message))
-                        }
-                    }
-
-                    override fun onDataChange(p0: DataSnapshot) {
-                        val data = p0.getValue(UserInfo::class.java)
-                        if (!continuation.isActive) {
-                            continuation.resume(FirebaseResult.Success(data))
-                        }
-                    }
-                })
-        }
+                override fun onDataChange(p0: DataSnapshot) {
+                    val data = p0.getValue(UserInfo::class.java)
+                    liveData.value = FirebaseResult.Success(data)
+                }
+            })
+        return liveData
+    }
+//    suspend fun readUserInfoFromFirebase() =
+//        suspendCancellableCoroutine<FirebaseResult> { continuation ->
+//            val uid = auth.uid
+//            // val reference = FirebaseDatabase.getInstance().getReference("/users/$uid")
+//
+//            firebaseDatabaseReference.child("/users/$uid")
+//                .addValueEventListener(object : ValueEventListener {
+//                    override fun onCancelled(p0: DatabaseError) {
+//                        if (!continuation.isActive) {
+//                            continuation.resume(FirebaseResult.Failure(p0.message))
+//                        }
+//                    }
+//
+//                    override fun onDataChange(p0: DataSnapshot) {
+//                        val data = p0.getValue(UserInfo::class.java)
+//                        if (!continuation.isActive) {
+//                            continuation.resume(FirebaseResult.Success(data))
+//                        }
+//                    }
+//                })
+//        }
 
     suspend fun uploadImageToFirebase(uri: Uri) =
         suspendCancellableCoroutine<FirebaseResult> { continuation ->
@@ -139,7 +155,7 @@ class FirebaseRepo(
                         continuation.resume(FirebaseResult.Success(it))
                     }
                 }.addOnFailureListener {
-                    // continuation.resume(FirebaseResult.Failure(Throwable(it.message)))
+                     continuation.resume(FirebaseResult.Failure((it.message!!)))
                 }
 
         }
@@ -193,11 +209,45 @@ class FirebaseRepo(
                             }
                             //Log.d("FirebaseRepo", "${eventList}")
                         }
-                      //  continuation.resume(FirebaseResult.Success(eventList))
+                        //  continuation.resume(FirebaseResult.Success(eventList))
                     }
                 })
-           continuation.resume(FirebaseResult.Success(eventList))
+            continuation.resume(FirebaseResult.Success(eventList))
         }
+
+     fun fetchEventsFromFirebase2(eventsId: List<String> = mutableListOf()): LiveData<List<Events>> {
+        val eventList = mutableListOf<Events>()
+        val mutableLiveData = MutableLiveData<List<Events>>()
+        println("In fetchEventsFromFirebase2")
+        firebaseDatabaseReference.child("events")
+            .addValueEventListener(object : ValueEventListener {
+                override fun onCancelled(p0: DatabaseError) {
+                println("ERROR = ${p0.message}")
+                }
+
+                override fun onDataChange(p0: DataSnapshot) {
+                    println("Empty data")
+                    if (p0.childrenCount == 0L) {
+                        mutableLiveData.value = null
+                        return
+                    }
+                    eventList.clear()
+                    for (event in p0.children) {
+
+                        if (eventsId.isNullOrEmpty()) eventList.add(event.getValue(Events::class.java)!!)
+                        else {
+                            if (eventsId.contains(event.key)) {
+                                eventList.add(event.getValue(Events::class.java)!!)
+                            }
+                        }
+                    }
+
+                    Log.d("OnDataChange","${eventList.size}")
+                    mutableLiveData.value = eventList
+                }
+            })
+        return mutableLiveData
+    }
 
     suspend fun fetchEventsIdFromUser() =
         suspendCancellableCoroutine<FirebaseResult> { continuation ->
@@ -213,28 +263,32 @@ class FirebaseRepo(
                         for (event in p0.children) {
                             events.add(event.getValue().toString())
                         }
-                       // continuation.resume(FirebaseResult.Success(events)) -- 1
+                        // continuation.resume(FirebaseResult.Success(events)) -- 1
                     }
                 })
             continuation.resume(FirebaseResult.Success(events)) // -- 2
         }
 
-    suspend fun fetchEventsIdFromUser2() {
-            val events = mutableListOf<String>()
-            firebaseDatabaseReference.child("users/${currentUser()!!.uid}/events")
-                .addValueEventListener(object : ValueEventListener {
-                    override fun onCancelled(p0: DatabaseError) {
-                        val errormessages = p0.message
-                    }
+     fun fetchEventsIdFromUser2():LiveData<List<String>> {
+        val events = mutableListOf<String>()
+        val liveData = MutableLiveData<List<String>>()
 
-                    override fun onDataChange(p0: DataSnapshot) {
-                        if (p0 == null) return
-                        for (event in p0.children) {
-                            events.add(event.getValue().toString())
+                firebaseDatabaseReference.child("users/${currentUser()!!.uid}/events")
+                    .addValueEventListener(object : ValueEventListener {
+                        override fun onCancelled(p0: DatabaseError) {
+
                         }
-                    }
-                })
-        }
+
+                        override fun onDataChange(p0: DataSnapshot) {
+                            if (p0 == null) return
+                            for (event in p0.children) {
+                                events.add(event.getValue().toString())
+                            }
+                            liveData.value = events
+                        }
+                    })
+        return liveData
+    }
 
     suspend fun fetchfromdb() = withContext(Dispatchers.IO) {
         firebaseDatabaseReference.child("users/${currentUser()!!.uid}/events")

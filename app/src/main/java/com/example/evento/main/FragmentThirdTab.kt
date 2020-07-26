@@ -11,6 +11,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.lifecycle.Observer
+import androidx.lifecycle.Transformations
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 
 import com.example.evento.R
@@ -51,6 +53,16 @@ class ThirdTabFragment : Fragment() {
         return inflater.inflate(R.layout.fragment_third_tab, container, false)
     }
 
+    override fun onResume() {
+        super.onResume()
+
+        eventViewModel.fetchEventsFromUser2().observe(viewLifecycleOwner, Observer {
+            Log.d("LivedataEvents","${it.size}")
+            eventAdapter.submitList(it)
+            // eventAdapter.notifyDataSetChanged()
+        })
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         button_add_event.setOnClickListener {
@@ -66,10 +78,15 @@ class ThirdTabFragment : Fragment() {
       //  eventViewModel= ViewModelProviders.of(this).get(EventViewModel::class.java)
 
         eventAdapter.setFragment(this)
-       // eventViewModel.fetchEventsFromUser()
-        eventViewModel.fetchEventsFromUser().observe(this,Observer{
-            eventAdapter.submitList(it)
-        })
+
+
+
+
+
+
+//        eventViewModel.fetchEventsFromUser2().observe(viewLifecycleOwner,Observer{
+//            eventAdapter.submitList(it)
+//        })
 
         recycler_tab_three.apply {
             adapter = eventAdapter
@@ -137,7 +154,7 @@ class ThirdTabFragment : Fragment() {
         else if (requestCode == AddUpdateActivity.UPDATE_EVENT_REQUEST_CODE && resultCode == Activity.RESULT_OK && data != null){
             val newEvent = data!!.getParcelableExtra<Events>(AddUpdateActivity.EXTRA_EVENT)
             val id = data!!.getStringExtra("EXTRA_ID")
-
+            Log.d("AddUpdateActivity","$newEvent")
             if (id == "") {
                 Toast.makeText(activity,"Error updating event",Toast.LENGTH_SHORT).show()
                 return
@@ -148,10 +165,10 @@ class ThirdTabFragment : Fragment() {
                 eventViewModel.updateEvent(newEvent)
                 withContext(Dispatchers.Main){
 
-                    withContext(Dispatchers.Main){
                         loadingLayout.visibility = View.VISIBLE
                         button_add_event.visibility = View.GONE
                         val uploadResult =  firebaseViewModel.uploadEvents(newEvent)
+                    Log.d("AddUpdateActivity","uploadresult = $uploadResult")
                         if (!uploadResult){
                             Toast.makeText(activity,"Fail to update event",Toast.LENGTH_SHORT).show()
                         }else{
@@ -164,7 +181,7 @@ class ThirdTabFragment : Fragment() {
 //                    firebaseViewModel.uploadUserEvents(newEvent)
 //                    firebaseViewModel.uploadEvents(newEvent)
 
-                    }
+
                 }
             }
             return
