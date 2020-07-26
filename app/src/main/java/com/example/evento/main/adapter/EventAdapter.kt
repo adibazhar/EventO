@@ -15,19 +15,20 @@ import com.example.evento.util.GlideApp
 import com.example.evento.main.ThirdTabFragment
 import kotlinx.android.synthetic.main.list_item_view.view.*
 
-class EventAdapter() :ListAdapter<Events, EventAdapter.EventViewHolder>(
+class EventAdapter() : ListAdapter<Events, EventAdapter.EventViewHolder>(
     DiffCallback
 ) {
 
     //private val fragment = fragment
-    private lateinit var fragment:Fragment
-    private  var listener: OnEventClickListener? =null
+    private lateinit var fragment: Fragment
+    private var listener: OnEventClickListener? = null
     private var listener2: OnBtnClickListener? = null
 
-    fun setFragment(fragment: Fragment){
+    fun setFragment(fragment: Fragment) {
         this.fragment = fragment
     }
-    inner class EventViewHolder (itemView:View):RecyclerView.ViewHolder(itemView){
+
+    inner class EventViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
         init {
             itemView.setOnClickListener {
@@ -41,7 +42,8 @@ class EventAdapter() :ListAdapter<Events, EventAdapter.EventViewHolder>(
                 }
             }
         }
-//        fun bind(events: Events,listener: OnEventClickListener){
+
+        //        fun bind(events: Events,listener: OnEventClickListener){
 //            listener.onItemClicked(events,itemView)
 //    println("On bind")
 //        }
@@ -53,57 +55,63 @@ class EventAdapter() :ListAdapter<Events, EventAdapter.EventViewHolder>(
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): EventViewHolder {
-        val itemView = LayoutInflater.from(parent.context).inflate(R.layout.list_item_view,parent,false)
+        val itemView =
+            LayoutInflater.from(parent.context).inflate(R.layout.list_item_view, parent, false)
         println("name = ${fragment::class.java.name}")
         return EventViewHolder(itemView)
     }
 
     override fun onBindViewHolder(holder: EventViewHolder, position: Int) {
         val currentEvent = getItem(position)
-        Log.d("currentEvent","$currentEvent")
+        Log.d("currentEvent", "$currentEvent")
         holder.tv_title.text = currentEvent.title
         holder.tv_date.text = currentEvent.date
         holder.tv_description.text = currentEvent.description
-        GlideApp.with(holder.itemView).load(currentEvent.imageUrl).centerCrop().into(holder.imageView_event)
+        GlideApp.with(holder.itemView).load(currentEvent.imageUrl).centerCrop()
+            .into(holder.imageView_event)
 
 //        holder.bind(currentEvent,itemListener)
-        if (fragment::class.java.name == ThirdTabFragment::class.java.name){
-            holder.btn_favourite.background = holder.itemView.resources.getDrawable(R.drawable.ic_delete_24dp)
+        if (fragment::class.java.name == ThirdTabFragment::class.java.name) {
+            holder.btn_favourite.background =
+                holder.itemView.resources.getDrawable(R.drawable.ic_delete_24dp)
             return
         }
 
-        if (currentEvent.favourites){
-            holder.btn_favourite.backgroundTintList = ColorStateList.valueOf(holder.itemView.context.resources.getColor(R.color.colorMainDark2))
-        }else holder.btn_favourite.backgroundTintList = ColorStateList.valueOf(holder.itemView.context.resources.getColor(R.color.white))
+        if (currentEvent.favourites) {
+            holder.btn_favourite.backgroundTintList =
+                ColorStateList.valueOf(holder.itemView.context.resources.getColor(R.color.colorMainDark2))
+        } else holder.btn_favourite.backgroundTintList =
+            ColorStateList.valueOf(holder.itemView.context.resources.getColor(R.color.white))
     }
 
-    companion object{
-       private val DiffCallback = object : DiffUtil.ItemCallback<Events>() {
+    companion object {
+        private val DiffCallback = object : DiffUtil.ItemCallback<Events>() {
 
-           override fun areItemsTheSame(oldItem: Events, newItem: Events): Boolean {
-               return oldItem.id == newItem.id
-           }
+            override fun areItemsTheSame(oldItem: Events, newItem: Events): Boolean {
+                return oldItem.id == newItem.id
+            }
 
-           override fun areContentsTheSame(oldItem: Events, newItem: Events): Boolean {
-               return oldItem.title == newItem.title && oldItem.description == newItem.description
-                       && oldItem.favourites == newItem.favourites && oldItem.imageUrl == newItem.imageUrl
-           }
-       }
+            override fun areContentsTheSame(oldItem: Events, newItem: Events): Boolean {
+                return oldItem.title == newItem.title && oldItem.description == newItem.description
+                        && oldItem.favourites == newItem.favourites && oldItem.imageUrl == newItem.imageUrl
+            }
+        }
     }
 
-    interface OnEventClickListener{
+    interface OnEventClickListener {
         fun onItemClicked(events: Events)
     }
 
-    interface OnBtnClickListener{
+    interface OnBtnClickListener {
         fun onButtonClicked(events: Events)
     }
 
-    fun setOnClickListener(listener: OnEventClickListener){
+    fun setOnClickListener(listener: OnEventClickListener) {
         this.listener = listener
     }
-//
-    fun setOnBtnClickListener(listener: OnBtnClickListener){
+
+    //
+    fun setOnBtnClickListener(listener: OnBtnClickListener) {
         this.listener2 = listener
     }
 }

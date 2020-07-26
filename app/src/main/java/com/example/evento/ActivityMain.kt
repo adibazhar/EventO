@@ -7,6 +7,8 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.lifecycle.Observer
+import com.example.evento.data.model.FirebaseResult
+import com.example.evento.data.model.UserInfo
 import com.example.evento.data.viewmodel.UserViewModel
 import com.example.evento.login.ActivityLogin
 import com.example.evento.data.viewmodel.FirebaseViewModel
@@ -41,15 +43,22 @@ class MainActivity : AppCompatActivity() {
         viewpager_main.adapter = fragmentAdapter
         tabs.setupWithViewPager(viewpager_main, true)
 
-        firebaseViewModel.getUserInfo().observe(this, Observer {
-            if (it.error != null) {
-                Toast.makeText(this, "${it.error}", Toast.LENGTH_SHORT).show()
-                Log.d("ReadUser", "${it.error}")
-                return@Observer
-            }
+        CoroutineScope(Dispatchers.Main).launch {
+            firebaseViewModel.getUserInfo().observe(this@MainActivity, Observer {
+                when(it){
+                    is FirebaseResult.Failure -> {
+                        Toast.makeText(this@MainActivity, it.t, Toast.LENGTH_SHORT).show()
+                        Log.d("ReadUser", it.t)
+                    }
+                    is FirebaseResult.Success<*> -> {
+                        val data = it.r as UserInfo
+                        Log.d("ReadUser", data.username)
+                    }
+                }
 
-            Log.d("ReadUser", "${it.userInfo!!.username}")
-        })
+            })
+        }
+
 
         account_icon.setOnClickListener {
             firebaseViewModel.signOut()

@@ -2,14 +2,14 @@ package com.example.evento.data.viewmodel
 
 import android.app.Application
 import android.util.Log
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.liveData
+import androidx.lifecycle.*
 import com.example.evento.data.model.Events
 import com.example.evento.data.model.FirebaseResult
 import com.example.evento.data.repo.EventRepo
 import com.example.evento.data.repo.FirebaseRepo
 import kotlinx.coroutines.InternalCoroutinesApi
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 
 class EventViewModel(
     application: Application,
@@ -18,6 +18,8 @@ class EventViewModel(
 ) :
     AndroidViewModel(application) {
 
+
+  //  val eventsId :LiveData<MutableList<String>> = firebaseRepo.fetchEventsIdFromUser2()
     //    private var repo: EventRepo =
 //        EventRepo(application)
 
@@ -41,17 +43,8 @@ class EventViewModel(
         return repo.getFavouritesEvents()
     }
 
-    fun fetchEvents() = liveData {
-        //  val liveData = MutableLiveData<List<Events>>()
-        val result = firebaseRepo.fetchEventsFromFirebase()
-        when (result) {
-            is FirebaseResult.Failure -> {
-            }
-            is FirebaseResult.Success<*> -> {
-                emit(result.r as List<Events>)
-            }
-        }
-    }
+     fun fetchEvents() = firebaseRepo.fetchEventsFromFirebase2()
+
 
     fun fetchEventsFromUser() = liveData {
         when (val data = firebaseRepo.fetchEventsIdFromUser()) {
@@ -72,5 +65,13 @@ class EventViewModel(
             }
         }
 
+    }
+
+     fun fetchEventsFromUser2():LiveData<List<Events>> {
+        val eventsId :LiveData<List<String>> = firebaseRepo.fetchEventsIdFromUser2()
+
+        return Transformations.switchMap(eventsId){
+            firebaseRepo.fetchEventsFromFirebase2(it)
+        }
     }
 }

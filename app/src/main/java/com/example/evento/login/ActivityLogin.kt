@@ -7,7 +7,7 @@ import android.util.Log
 import android.view.WindowManager
 import com.example.evento.MainActivity
 import com.example.evento.R
-import com.example.evento.data.FirebaseViewModel
+import com.example.evento.data.viewmodel.FirebaseViewModel
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.firebase.auth.FirebaseAuth

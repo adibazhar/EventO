@@ -9,10 +9,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.lifecycle.Observer
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 
 import com.example.evento.R
 import com.example.evento.data.model.Events
+import com.example.evento.data.model.FirebaseResult
 import com.example.evento.data.viewmodel.EventViewModel
 import com.example.evento.main.adapter.EventAdapter
 import kotlinx.android.synthetic.main.fragment_first_tab.*
@@ -56,11 +58,18 @@ class FirstTabFragment : Fragment() {
 //        }
 //    }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        // Inflate the layout for this fragment
+        return inflater.inflate(R.layout.fragment_first_tab, container, false)
+    }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
-       // eventViewModel = ViewModelProviders.of(this).get(EventViewModel::class.java)
+        // eventViewModel = ViewModelProviders.of(this).get(EventViewModel::class.java)
         madapter.setFragment(this)
 //        eventViewModel.getAllEvents().observe(this,Observer<List<Events>>{
 //            madapter.submitList(it)
@@ -72,21 +81,30 @@ class FirstTabFragment : Fragment() {
             layoutManager = LinearLayoutManager(this.context)
         }
 
-        eventViewModel.fetchEvents().observe(this, Observer {
-            Log.d("fetchevents2","$it")
-            madapter.submitList(it)
-        })
+        viewLifecycleOwner.lifecycleScope.launch {
+            loadingLayout.visibility = View.VISIBLE
+            eventViewModel.fetchEvents().observe(viewLifecycleOwner, Observer {
+                if (it.isNullOrEmpty()) {
+                    nodata_layout.visibility = View.VISIBLE
+                    loadingLayout.visibility = View.GONE
+                    return@Observer
+                }
+
+                madapter.submitList(it)
+                loadingLayout.visibility = View.GONE
+            })
+        }
 
         madapter.setOnClickListener(object :
             EventAdapter.OnEventClickListener{
             override fun onItemClicked(events: Events) {
-               // Toast.makeText(activity,"TITLE : ${events.title} || DATE : ${events.date}",Toast.LENGTH_SHORT).show()
-                    val fm = childFragmentManager
-                    val fragment =
-                        FragmentViewEvent.newInstance(
-                            events
-                        )
-                    fragment.show(fm,"Dialog")
+                // Toast.makeText(activity,"TITLE : ${events.title} || DATE : ${events.date}",Toast.LENGTH_SHORT).show()
+                val fm = childFragmentManager
+                val fragment =
+                    FragmentViewEvent.newInstance(
+                        events
+                    )
+                fragment.show(fm,"Dialog")
             }
 
         })
@@ -96,26 +114,18 @@ class FirstTabFragment : Fragment() {
             override fun onButtonClicked(events: Events) {
                 events.favourites = if (events.favourites) false else true
 
-               CoroutineScope(Dispatchers.IO).launch {
-                   eventViewModel.updateEvent(events)
-                   withContext(Dispatchers.Main){
-                       if (events.favourites) Toast.makeText(activity,"Save event as favourite",Toast.LENGTH_SHORT).show()
-                       else Toast.makeText(activity,"Remove event from favourite",Toast.LENGTH_SHORT).show()
-                   }
-               }
+                viewLifecycleOwner.lifecycleScope.launch {
+                    eventViewModel.updateEvent(events)
+                    withContext(Dispatchers.Main){
+                        if (events.favourites) Toast.makeText(activity,"Save event as favourite",Toast.LENGTH_SHORT).show()
+                        else Toast.makeText(activity,"Remove event from favourite",Toast.LENGTH_SHORT).show()
+                    }
+                }
                 madapter.notifyDataSetChanged()
             }
 
         })
-
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_first_tab, container, false)
-    }
 
 }
